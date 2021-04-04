@@ -15,7 +15,7 @@
 </div>
 
 <div align="center">
-  Limit an async function&#39;s concurrency with ease!
+  Limit an async function's concurrency with ease!
 </div>
 
 ## Install
