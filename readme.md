@@ -82,7 +82,11 @@ Stars are always welcome!
 For bugs and feature requests,
 [please create an issue](https://github.com/TomerAberbach/limit-concur/issues/new).
 
+For pull requests, please read the
+[contributing guidelines](https://github.com/TomerAberbach/limit-concur/blob/master/contributing.md).
+
 ## License
 
-[Apache License 2.0](https://github.com/TomerAberbach/limit-concur/blob/main/license)
-© [Tomer Aberbach](https://github.com/TomerAberbach)
+[Apache 2.0](https://github.com/TomerAberbach/limit-concur/blob/master/license)
+
+This is not an official Google product.
