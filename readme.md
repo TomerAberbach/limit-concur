@@ -45,6 +45,7 @@ async function getChuckNorrisJoke(category) {
 
 const limitedGetChuckNorrisJoke = limitConcur(4, getChuckNorrisJoke)
 
+// At most 4 requests are pending at any given time!
 const jokes = await Promise.all(categories.map(limitedGetChuckNorrisJoke))
 console.log(jokes)
 //=> [
