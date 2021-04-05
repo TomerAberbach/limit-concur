@@ -20,6 +20,9 @@ const wrapFunction = (from, to) =>
     name: { value: from.name }
   })
 
+// eslint-disable-next-line no-empty-function
+const noop = () => {}
+
 const limitConcur = (concurrency, fn) => {
   if (!Number.isSafeInteger(concurrency) || concurrency <= 0) {
     throw new TypeError(
@@ -37,8 +40,7 @@ const limitConcur = (concurrency, fn) => {
     const promise = fn(...args)
 
     ;(async () => {
-      // eslint-disable-next-line no-empty-function
-      const nonThrowingPromise = promise.catch(() => {})
+      const nonThrowingPromise = promise.then(noop, noop).catch(noop)
       pending.add(nonThrowingPromise)
       await nonThrowingPromise
       pending.delete(nonThrowingPromise)
