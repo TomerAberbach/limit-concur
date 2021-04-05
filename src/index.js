@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-const wrapFunction = (from, to) => {
-  const properties = [`length`, `name`].map(property => ({
-    [property]: {
-      enumerable: false,
-      writable: false,
-      value: from[property]
-    }
-  }))
-
-  return Object.defineProperties(to, Object.assign(...properties))
-}
+const wrapFunction = (from, to) =>
+  Object.defineProperties(to, {
+    length: { value: from.length },
+    name: { value: from.name }
+  })
 
 const limitConcur = (concurrency, fn) => {
   if (!Number.isSafeInteger(concurrency) || concurrency <= 0) {
