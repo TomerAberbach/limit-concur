@@ -84,22 +84,22 @@
     "commit-msg": "pnpx --no-install commitlint -e"
   },
   "devDependencies": {
-    "@commitlint/cli": "12.1.1",
-    "@commitlint/config-conventional": "12.1.1",
-    "@sinonjs/fake-timers": "7.0.2",
-    "@tomer/eslint-config": "0.1.0",
+    "@commitlint/cli": "12.1.4",
+    "@commitlint/config-conventional": "12.1.4",
+    "@sinonjs/fake-timers": "7.1.0",
+    "@tomer/eslint-config": "0.1.1",
     "@tomer/prettier-config": "0.1.0",
     "ava": "3.15.0",
     "ava-fast-check": "4.0.2",
-    "c8": "7.7.0",
-    "eslint": "7.23.0",
+    "c8": "7.7.2",
+    "eslint": "7.27.0",
     "fast-check": "2.14.0",
-    "lint-staged": "10.5.4",
+    "lint-staged": "11.0.0",
     "npm-run-all": "4.1.5",
     "p-state": "0.2.0",
-    "prettier": "2.2.1",
-    "tsd": "0.14.0",
-    "typescript": "4.2.3"
+    "prettier": "2.3.0",
+    "tsd": "0.15.1",
+    "typescript": "4.3.2"
   },
   "dependencies": {
     "simple-git-hooks": "2.4.1"
