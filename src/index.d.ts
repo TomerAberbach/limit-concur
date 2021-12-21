@@ -20,7 +20,7 @@
  */
 declare const limitConcur: <Fn extends (...args: any[]) => any>(
   concurrency: number,
-  fn: Fn
+  fn: Fn,
 ) => ReturnType<Fn> extends PromiseLike<any> ? Fn : never
 
 export default limitConcur

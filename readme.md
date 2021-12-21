@@ -31,14 +31,14 @@ import got from 'got'
 import limitConcur from 'limit-concur'
 
 const categories = await got(
-  `https://api.chucknorris.io/jokes/categories`
+  `https://api.chucknorris.io/jokes/categories`,
 ).json()
 
 async function getChuckNorrisJoke(category) {
   const { value } = await got(`https://api.chucknorris.io/jokes/random`, {
     searchParams: {
-      category
-    }
+      category,
+    },
   }).json()
   return value
 }
@@ -68,7 +68,7 @@ const limit = limitConcur(1, fn => fn())
 const input = [
   limit(() => fetchSomething(`foo`)),
   limit(() => fetchSomething(`bar`)),
-  limit(() => doSomething())
+  limit(() => doSomething()),
 ]
 
 const result = await Promise.all(input)

@@ -34,6 +34,6 @@ expectType<Promise<number>>(limited(1))
 expectType<Promise<string>>(
   limitConcur(
     1,
-    (a: number, b: string): Promise<string> => Promise.resolve(b + a)
-  )(1, '')
+    (a: number, b: string): Promise<string> => Promise.resolve(b + a),
+  )(1, ''),
 )

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line ava/use-test
 import normalTest from 'ava'
 import { testProp as normalTestProp } from 'ava-fast-check'
 import { clock } from './index.js'

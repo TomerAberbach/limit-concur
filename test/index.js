@@ -30,9 +30,9 @@ const asyncFnArb = fc
       },
       {
         toString: () =>
-          `(...args) => delay().then(() => (${fc.stringify(fn)})(...args))`
-      }
-    )
+          `(...args) => delay().then(() => (${fc.stringify(fn)})(...args))`,
+      },
+    ),
   )
 
 const maybeThrowingAsyncFnArb = fc
@@ -51,11 +51,11 @@ const maybeThrowingAsyncFnArb = fc
       {
         toString: () =>
           `(...args) => maybeThrow().then(() => (${fc.stringify(
-            asyncFn
+            asyncFn,
           )})(...args))`,
-        shouldThrow
-      }
-    )
+        shouldThrow,
+      },
+    ),
   )
 
 testProp(
@@ -63,16 +63,16 @@ testProp(
   [
     fc.oneof(
       fc.double().filter(value => !Number.isSafeInteger(value)),
-      fc.integer({ max: 0 })
+      fc.integer({ max: 0 }),
     ),
-    asyncFnArb
+    asyncFnArb,
   ],
   (t, concurrency, fn) => {
     t.throws(() => limitConcur(concurrency, fn), {
       message: `Expected \`concurrency\` to be a positive integer: ${concurrency}`,
-      instanceOf: TypeError
+      instanceOf: TypeError,
     })
-  }
+  },
 )
 
 testProp(
@@ -80,7 +80,7 @@ testProp(
   [
     fc.integer({ min: 1 }),
     asyncFnArb,
-    fc.array(fc.array(fc.anything()), { minLength: 1 })
+    fc.array(fc.array(fc.anything()), { minLength: 1 }),
   ],
   async (t, concurrency, fn, inputs) => {
     let running = 0
@@ -100,7 +100,7 @@ testProp(
     const outputs = await Promise.all(inputs.map(input => limitedFn(...input)))
 
     t.deepEqual(outputs, await Promise.all(inputs.map(input => fn(...input))))
-  }
+  },
 )
 
 testProp(
@@ -108,7 +108,7 @@ testProp(
   [
     fc.integer({ min: 1 }),
     maybeThrowingAsyncFnArb,
-    fc.array(fc.array(fc.anything()), { minLength: 1 })
+    fc.array(fc.array(fc.anything()), { minLength: 1 }),
   ],
   async (t, concurrency, fn, inputs) => {
     let running = 0
@@ -127,7 +127,7 @@ testProp(
 
     const outputs = inputs.map(input => ({
       shouldThrow: fn.shouldThrow(...input),
-      output: limitedFn(...input)
+      output: limitedFn(...input),
     }))
 
     for (const { shouldThrow, output } of outputs) {
@@ -135,7 +135,7 @@ testProp(
         ? t.throwsAsync(() => output, { message: `BOOM!`, instanceOf: Error })
         : t.notThrowsAsync(() => output))
     }
-  }
+  },
 )
 
 test(`limitConcur concrete example`, async t => {

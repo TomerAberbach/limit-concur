@@ -17,7 +17,7 @@
 const wrapFunction = (from, to) =>
   Object.defineProperties(to, {
     length: { value: from.length },
-    name: { value: from.name }
+    name: { value: from.name },
   })
 
 // eslint-disable-next-line no-empty-function
@@ -26,7 +26,7 @@ const noop = () => {}
 const limitConcur = (concurrency, fn) => {
   if (!Number.isSafeInteger(concurrency) || concurrency <= 0) {
     throw new TypeError(
-      `Expected \`concurrency\` to be a positive integer: ${concurrency}`
+      `Expected \`concurrency\` to be a positive integer: ${concurrency}`,
     )
   }
 
