@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-const wrapFunction = (from, to) =>
+/* eslint-disable typescript/no-explicit-any */
+
+const wrapFunction = <Fn extends (...args: any[]) => any>(
+  from: (...args: any[]) => any,
+  to: Fn,
+): Fn =>
   Object.defineProperties(to, {
     length: { value: from.length },
     name: { value: from.name },
   })
 
-// eslint-disable-next-line no-empty-function
+// eslint-disable-next-line typescript/no-empty-function
 const noop = () => {}
 
-const limitConcur = (concurrency, fn) => {
+/**
+ * Return a function equivalent to `fn` except that at most `concurrency` calls
+ * to `fn` can run at once at any given time.
+ */
+const limitConcur = <Fn extends (...args: any[]) => Promise<any>>(
+  concurrency: number,
+  fn: Fn,
+): Fn => {
   if (!Number.isSafeInteger(concurrency) || concurrency <= 0) {
     throw new TypeError(
       `Expected \`concurrency\` to be a positive integer: ${concurrency}`,
@@ -32,22 +44,23 @@ const limitConcur = (concurrency, fn) => {
 
   const pending = new Set()
 
-  return wrapFunction(fn, async (...args) => {
+  return wrapFunction(fn, (async (...args) => {
     while (pending.size === concurrency) {
       await Promise.race(pending)
     }
 
+    // eslint-disable-next-line typescript/no-unsafe-argument
     const promise = fn(...args)
 
-    ;(async () => {
-      const nonThrowingPromise = promise.then(noop, noop).catch(noop)
+    void (async () => {
+      const nonThrowingPromise = promise.then(noop).catch(noop)
       pending.add(nonThrowingPromise)
       await nonThrowingPromise
       pending.delete(nonThrowingPromise)
     })()
 
     return promise
-  })
+  }) as Fn)
 }
 
 export default limitConcur

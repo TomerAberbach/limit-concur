@@ -9,14 +9,23 @@
   <a href="https://github.com/TomerAberbach/limit-concur/actions">
     <img src="https://github.com/TomerAberbach/limit-concur/workflows/CI/badge.svg" alt="CI" />
   </a>
-  <a href="https://bundlephobia.com/result?p=limit-concur">
-    <img src="https://badgen.net/bundlephobia/minzip/limit-concur" alt="minzip size" />
+  <a href="https://unpkg.com/limit-concur/dist/index.min.js">
+    <img src="http://img.badgesize.io/https://unpkg.com/limit-concur/dist/index.min.js?compression=gzip&label=gzip" alt="gzip size" />
+  </a>
+  <a href="https://unpkg.com/limit-concur/dist/index.min.js">
+    <img src="http://img.badgesize.io/https://unpkg.com/limit-concur/dist/index.min.js?compression=brotli&label=brotli" alt="brotli size" />
   </a>
 </div>
 
 <div align="center">
   Limit an async function's concurrency with ease!
 </div>
+
+## Features
+
+- **Wow:** so amazing
+- **Amazing:** so wow
+- **Fancy:** has a tie and everything
 
 ## Install
 
@@ -34,7 +43,7 @@ const categories = await got(
   `https://api.chucknorris.io/jokes/categories`,
 ).json()
 
-async function getChuckNorrisJoke(category) {
+const getChuckNorrisJoke = async category => {
   const { value } = await got(`https://api.chucknorris.io/jokes/random`, {
     searchParams: {
       category,
@@ -84,10 +93,10 @@ For bugs and feature requests,
 [please create an issue](https://github.com/TomerAberbach/limit-concur/issues/new).
 
 For pull requests, please read the
-[contributing guidelines](https://github.com/TomerAberbach/limit-concur/blob/master/contributing.md).
+[contributing guidelines](https://github.com/TomerAberbach/limit-concur/blob/main/contributing.md).
 
 ## License
 
-[Apache 2.0](https://github.com/TomerAberbach/limit-concur/blob/master/license)
+[Apache License 2.0](https://github.com/TomerAberbach/limit-concur/blob/main/license)
 
 This is not an official Google product.

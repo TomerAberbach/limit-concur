@@ -1,5 +1,7 @@
 {
+  "extends": "tomer/tsconfig",
+  "include": ["**/*"],
   "compilerOptions": {
-    "lib": ["ESNext"]
+    "allowImportingTsExtensions": true
   }
 }
