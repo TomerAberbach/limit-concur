@@ -23,9 +23,8 @@
 
 ## Features
 
-- **Wow:** so amazing
-- **Amazing:** so wow
-- **Fancy:** has a tie and everything
+- **Tiny:** only ~320 B minzipped
+- **Flexible:** works for any function that returns a `Promise`
 
 ## Install
 
