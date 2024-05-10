@@ -93,10 +93,7 @@ const maybeThrowingAsyncFnArb = fc
   )
 
 test.prop([
-  fc.oneof(
-    fc.double().filter(value => !Number.isSafeInteger(value)),
-    fc.integer({ max: 0 }),
-  ),
+  fc.oneof(fc.double({ noInteger: true }), fc.integer({ max: 0 })),
   asyncFnArb,
 ])(
   `limitConcur throws for a non positive integer concurrency`,
