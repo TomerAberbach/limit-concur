@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "author": {
     "name": "Tomer Aberbach",
-    "email": "tomeraberbach@gmail.com",
+    "email": "tomer@aberba.ch",
     "url": "https://tomeraberba.ch"
   },
   "description": "Limit an async function&#39;s concurrency with ease!",
