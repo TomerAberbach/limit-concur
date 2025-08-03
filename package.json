@@ -58,10 +58,8 @@
   "devDependencies": {
     "@fast-check/vitest": "^0.2.2",
     "@rollup/plugin-terser": "^0.4.4",
-    "@sinonjs/fake-timers": "^14.0.0",
     "@tomer/eslint-config": "^4.1.0",
     "@tomer/prettier-config": "^4.0.0",
-    "@types/sinonjs__fake-timers": "^8.1.5",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.32.0",
     "jest-extended": "^6.0.0",
