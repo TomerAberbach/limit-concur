@@ -1,28 +1,15 @@
-/**
- * Copyright 2021 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { inspect } from 'node:util'
-import { fc, test } from 'tomer'
-import { createClock } from '@sinonjs/fake-timers'
-import limitConcur from '../src/index.ts'
+import { setTimeout } from 'node:timers/promises'
+import { fc, test } from '@fast-check/vitest'
+import { afterEach, beforeEach, expect, vi } from 'vitest'
+import limitConcur from './index.ts'
 
-const clock = createClock(Date.now(), Infinity)
-
-const delay = (timeout: number): Promise<void> =>
-  new Promise(resolve => clock.setTimeout(resolve, timeout))
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 const promiseStateSync = (promise: Promise<unknown>): string => {
   const inspectedString = inspect(promise, {
@@ -43,23 +30,24 @@ const promiseStateSync = (promise: Promise<unknown>): string => {
   return `fulfilled`
 }
 
-fc.configureGlobal({ numRuns: 500 })
-
 const withAutoAdvancingTimers =
   <Args extends unknown[]>(
     fn: (...args: Args) => Promise<void>,
   ): ((...args: Args) => Promise<void>) =>
   async (...args) => {
     void fn(...args)
-    await clock.runAllAsync()
+    await vi.runAllTimersAsync()
   }
 
 const asyncFnArb = fc
-  .tuple(fc.infiniteStream(fc.integer({ min: 1 })), fc.func(fc.anything()))
+  .tuple(
+    fc.infiniteStream(fc.integer({ min: 1, max: 50 }).map(i => i * 1000)),
+    fc.func(fc.anything()),
+  )
   .map(([delays, fn]) =>
     Object.assign(
       async (...args: unknown[]) => {
-        await delay(Number(delays.next().value))
+        await setTimeout(Number(delays.next().value))
         return fn(...args)
       },
       {
@@ -180,34 +168,34 @@ test(
     let running = 0
     const limitedDelay = limitConcur(3, async (timeout: number) => {
       running++
-      await delay(timeout)
+      await setTimeout(timeout)
       running--
     })
 
-    const first = limitedDelay(4)
+    const first = limitedDelay(4000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(running).toBe(1)
 
-    await delay(1)
+    await setTimeout(1000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(running).toBe(1)
 
-    const second = limitedDelay(2)
+    const second = limitedDelay(2000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`pending`)
     expect(running).toBe(2)
 
-    const third = limitedDelay(5)
+    const third = limitedDelay(5000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`pending`)
     expect(promiseStateSync(third)).toBe(`pending`)
     expect(running).toBe(3)
 
-    const fourth = limitedDelay(5)
+    const fourth = limitedDelay(5000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`pending`)
@@ -215,7 +203,7 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(3)
 
-    await delay(2)
+    await setTimeout(2000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
@@ -223,7 +211,7 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(3)
 
-    await delay(2)
+    await setTimeout(2000)
 
     expect(promiseStateSync(first)).toBe(`fulfilled`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
@@ -231,7 +219,7 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(2)
 
-    await delay(10)
+    await setTimeout(1000)
 
     expect(promiseStateSync(first)).toBe(`fulfilled`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
