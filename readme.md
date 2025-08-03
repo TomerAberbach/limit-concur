@@ -26,7 +26,7 @@
 
 ## Features
 
-- **Tiny:** only ~320 B minzipped
+- **Tiny:** only ~300 B minzipped
 - **Flexible:** works for any function that returns a `Promise`
 
 ## Install
