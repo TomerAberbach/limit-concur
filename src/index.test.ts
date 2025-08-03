@@ -1,5 +1,4 @@
 import { inspect } from 'node:util'
-import { setTimeout } from 'node:timers/promises'
 import { fc, test } from '@fast-check/vitest'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
 import limitConcur from './index.ts'
@@ -11,7 +10,16 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const promiseStateSync = (promise: Promise<unknown>): string => {
+// NOTE: We don't use `setTimeout` from `node:timers/promises` because
+// `useFakeTimers()` doesn't affect it.
+const delay = (ms: number) =>
+  new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
+
+const promiseStateSync = (
+  promise: Promise<unknown>,
+): `pending` | `rejected` | `fulfilled` => {
   const inspectedString = inspect(promise, {
     depth: 0,
     showProxy: false,
@@ -35,8 +43,11 @@ const withAutoAdvancingTimers =
     fn: (...args: Args) => Promise<void>,
   ): ((...args: Args) => Promise<void>) =>
   async (...args) => {
-    void fn(...args)
-    await vi.runAllTimersAsync()
+    const promise = fn(...args)
+    while (vi.getTimerCount() > 0) {
+      await vi.runAllTimersAsync()
+    }
+    await promise
   }
 
 const asyncFnArb = fc
@@ -47,7 +58,7 @@ const asyncFnArb = fc
   .map(([delays, fn]) =>
     Object.assign(
       async (...args: unknown[]) => {
-        await setTimeout(Number(delays.next().value))
+        await delay(Number(delays.next().value))
         return fn(...args)
       },
       {
@@ -168,26 +179,38 @@ test(
     let running = 0
     const limitedDelay = limitConcur(3, async (timeout: number) => {
       running++
-      await setTimeout(timeout)
+      await delay(timeout)
       running--
     })
 
+    // Queued: {}
+    // Pending: { first: 4000 }
+    // Done: {}
     const first = limitedDelay(4000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(running).toBe(1)
 
-    await setTimeout(1000)
+    // Queued: {}
+    // Pending: { first: 3000 }
+    // Done: {}
+    await delay(1000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(running).toBe(1)
 
+    // Queued: {}
+    // Pending: { first: 3000, second: 2000 }
+    // Done: {}
     const second = limitedDelay(2000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`pending`)
     expect(running).toBe(2)
 
+    // Queued: {}
+    // Pending: { first: 3000, second: 2000, third: 5000 }
+    // Done: {}
     const third = limitedDelay(5000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
@@ -195,6 +218,9 @@ test(
     expect(promiseStateSync(third)).toBe(`pending`)
     expect(running).toBe(3)
 
+    // Queued: { fourth: 5000 }
+    // Pending: { first: 3000, second: 2000, third: 5000 }
+    // Done: {}
     const fourth = limitedDelay(5000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
@@ -203,7 +229,10 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(3)
 
-    await setTimeout(2000)
+    // Queued: {}
+    // Pending: { first: 1000, third: 3000, fourth: 5000 }
+    // Done: { second: 0 }
+    await delay(2000)
 
     expect(promiseStateSync(first)).toBe(`pending`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
@@ -211,7 +240,10 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(3)
 
-    await setTimeout(2000)
+    // Queued: {}
+    // Pending: { third: 1000, fourth: 3000 }
+    // Done: { first: 0, second: 0 }
+    await delay(2000)
 
     expect(promiseStateSync(first)).toBe(`fulfilled`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
@@ -219,7 +251,32 @@ test(
     expect(promiseStateSync(fourth)).toBe(`pending`)
     expect(running).toBe(2)
 
-    await setTimeout(1000)
+    // Queued: {}
+    // Pending: { fourth: 2000 }
+    // Done: { first: 0, second: 0, third: 0 }
+    await delay(1000)
+
+    expect(promiseStateSync(first)).toBe(`fulfilled`)
+    expect(promiseStateSync(second)).toBe(`fulfilled`)
+    expect(promiseStateSync(third)).toBe(`fulfilled`)
+    expect(promiseStateSync(fourth)).toBe(`pending`)
+    expect(running).toBe(1)
+
+    // Queued: {}
+    // Pending: { fourth: 1000 }
+    // Done: { first: 0, second: 0, third: 0 }
+    await delay(1000)
+
+    expect(promiseStateSync(first)).toBe(`fulfilled`)
+    expect(promiseStateSync(second)).toBe(`fulfilled`)
+    expect(promiseStateSync(third)).toBe(`fulfilled`)
+    expect(promiseStateSync(fourth)).toBe(`pending`)
+    expect(running).toBe(1)
+
+    // Queued: {}
+    // Pending: {}
+    // Done: { first: 0, second: 0, third: 0, fourth: 0 }
+    await delay(1000)
 
     expect(promiseStateSync(first)).toBe(`fulfilled`)
     expect(promiseStateSync(second)).toBe(`fulfilled`)
