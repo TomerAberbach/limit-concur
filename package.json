@@ -52,7 +52,8 @@
     "test": "vitest",
     "coverage": "vitest --coverage",
     "bench": "vitest bench",
-    "build": "tsdown"
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build"
   },
   "prettier": "@tomer/prettier-config",
   "devDependencies": {
